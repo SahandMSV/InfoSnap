@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>InfoSnap</title>
+    <style>
+      :root {
+        --bg: #fff;
+        --fg: #09090b;
+        --muted: #71717a;
+        --border: #e4e4e7;
+        --accent: #f4f4f5;
+        --g: #58cc02;
+        --gd: #46a302;
+        --ring: #a1a1aa;
+        --r: 0.75rem;
+        font-family:
+          ui-rounded,
+          "Nunito",
+          "SF Pro Rounded",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #09090b;
+          --fg: #fafafa;
+          --muted: #a1a1aa;
+          --border: #27272a;
+          --accent: #27272a;
+          --ring: #52525b;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .app {
+        max-width: 440px;
+        margin: 0 auto;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom);
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+      }
+      .bar {
+        flex: 1;
+        height: 14px;
+        border-radius: 99px;
+        background: var(--accent);
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--g);
+        border-radius: 99px;
+        transition: width 0.3s;
+      }
+      .main {
+        flex: 1;
+        padding: 8px 0 24px;
+      }
+      .foot {
+        padding: 12px 0 20px;
+        display: grid;
+        gap: 10px;
+      }
+      h1 {
+        font-size: 26px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin: 12px 0 6px;
+      }
+      p.s {
+        color: var(--muted);
+        margin: 0 0 16px;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 99px;
+        padding: 2px 10px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+      .badge.r {
+        background: var(--fg);
+        color: var(--bg);
+        border-color: var(--fg);
+      }
+      label {
+        display: block;
+        font-weight: 700;
+        font-size: 14px;
+        margin: 14px 0 6px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        font: inherit;
+        color: inherit;
+        background: transparent;
+        border: 2px solid var(--border);
+        border-radius: var(--r);
+        padding: 12px 14px;
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+      input:focus-visible,
+      textarea:focus-visible,
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid var(--ring);
+        outline-offset: 2px;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .pair input {
+        padding: 10px 12px;
+      }
+      button,
+      .btn {
+        font: inherit;
+        font-weight: 800;
+        border-radius: var(--r);
+        border: 2px solid var(--border);
+        border-bottom-width: 4px;
+        background: var(--bg);
+        color: var(--fg);
+        padding: 12px 16px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+      }
+      button:active {
+        transform: translateY(2px);
+        border-bottom-width: 2px;
+      }
+      .p {
+        background: var(--g);
+        border-color: var(--gd);
+        color: #fff;
+        text-transform: none;
+      }
+      .p:disabled {
+        opacity: 0.6;
+      }
+      .ghost {
+        border-color: transparent;
+        color: var(--muted);
+        border-bottom-width: 2px;
+      }
+      .icon {
+        width: auto;
+        padding: 6px 10px;
+        border-width: 2px;
+      }
+      .card {
+        border: 2px solid var(--border);
+        border-radius: calc(var(--r) + 4px);
+        padding: 16px;
+        margin: 12px 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+      .err {
+        color: #dc2626;
+        font-weight: 700;
+        margin-top: 10px;
+      }
+      .ok {
+        color: var(--gd);
+        font-weight: 700;
+      }
+      #qr svg {
+        width: 200px;
+        height: 200px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 6px;
+        display: block;
+        margin: 12px auto;
+      }
+      .big {
+        font-size: 44px;
+        text-align: center;
+      }
+      .c {
+        text-align: center;
+      }
+      .sec {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--muted);
+        margin: 22px 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="app"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script>
+      /* ====== EDIT THESE TWO ====== */
+      const CFG = {
+        CLIENT_ID: "YOUR_GITHUB_CLIENT_ID",
+        WORKER: "https://infosnap.YOURNAME.workers.dev",
+        REPO: "my-infosnap",
+      };
+      /* ============================ */
+      const $ = (s) => document.querySelector(s),
+        esc = (s) =>
+          String(s).replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+      const okUrl = (u) => (/^(https?:|mailto:|tel:)/i.test(u) ? u : ""),
+        fixUrl = (u) => (u && !/^[a-z]+:/i.test(u) ? "https://" + u : u);
+      let T = localStorage.getItem("is_tok"),
+        U = "",
+        S = {
+          name: "",
+          tag: "",
+          phone: "",
+          addr: "",
+          hours: "",
+          logo: "",
+          color: "#18181b",
+          short: "",
+          links: Array.from({ length: 5 }, () => ({ l: "", u: "" })),
+        };
+      let view = "load",
+        step = 0,
+        busy = "",
+        msg = "";
+      const fld = (id, l, v, ph, t = "text") =>
+        `<label for="${id}">${l}</label><input id="${id}" type="${t}" value="${esc(v)}" placeholder="${esc(ph)}" autocomplete="off">`;
+      const rows = (n) =>
+        Array.from(
+          { length: n },
+          (_, i) =>
+            `<div class="pair"><input id="l${i}" aria-label="Button ${i + 1} label" value="${esc(S.links[i].l)}" placeholder="Label"><input id="u${i}" aria-label="Button ${i + 1} link" value="${esc(S.links[i].u)}" placeholder="Link"></div>`,
+        ).join("");
+      const readLinks = (n) => {
+        for (let i = 0; i < n; i++)
+          S.links[i] = {
+            l: $("#l" + i).value.trim(),
+            u: fixUrl($("#u" + i).value.trim()),
+          };
+      };
+      const v = (id) => $("#" + id).value.trim();
+
+      const ST = [
+        {
+          t: "What's your business called?",
+          req: 1,
+          h: () => fld("a", "Business name", S.name, "Fika & Co"),
+          ok: () => v("a"),
+          save: () => (S.name = v("a")),
+        },
+        {
+          t: "Where should people go?",
+          s: "Add up to 3 buttons, like your menu or Instagram. One is enough.",
+          req: 1,
+          h: () => rows(3),
+          ok: () => {
+            readLinks(3);
+            return S.links.slice(0, 3).some((x) => x.l && x.u);
+          },
+          save: () => readLinks(3),
+        },
+        {
+          t: "Add a short tagline",
+          s: "One line under your name.",
+          h: () => fld("a", "Tagline", S.tag, "Coffee and good company"),
+          save: () => (S.tag = v("a")),
+        },
+        {
+          t: "How can people reach you?",
+          s: "Add a phone number, an address, or both.",
+          h: () =>
+            fld("a", "Phone", S.phone, "+46 8 123 456", "tel") +
+            fld("b", "Address", S.addr, "Drottninggatan 1, Stockholm"),
+          save: () => {
+            S.phone = v("a");
+            S.addr = v("b");
+          },
+        },
+      ];
+
+      function build() {
+        const c = /^#[0-9a-f]{6}$/i.test(S.color) ? S.color : "#18181b";
+        const ls = S.links.filter((x) => x.l && okUrl(x.u)),
+          hs = S.hours
+            .split("\n")
+            .map((x) => x.trim())
+            .filter(Boolean);
+        const info = [
+          S.phone &&
+            `<a href="tel:${esc(S.phone.replace(/[^\d+]/g, ""))}">${esc(S.phone)}</a>`,
+          S.addr &&
+            `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(S.addr)}" rel="noopener">${esc(S.addr)}</a>`,
+        ]
+          .filter(Boolean)
+          .join("<br>");
+        return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.name)}</title><meta name="description" content="${esc(S.tag)}"><meta property="og:title" content="${esc(S.name)}"><meta property="og:description" content="${esc(S.tag)}"><style>
+:root{--bg:#fafafa;--fg:#09090b;--m:#71717a;--c:#fff;--bd:#e4e4e7;--p:${c};font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#09090b;--fg:#fafafa;--m:#a1a1aa;--c:#0c0c0e;--bd:#27272a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);line-height:1.5;display:flex;justify-content:center;padding:32px 16px}
+main{width:100%;max-width:440px}.card{background:var(--c);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+header{text-align:center}img{width:84px;height:84px;border-radius:50%;object-fit:cover;border:1px solid var(--bd)}
+h1{font-size:24px;letter-spacing:-.02em;margin:12px 0 4px}p{color:var(--m);margin:0}
+.b{display:block;text-align:center;text-decoration:none;font-weight:600;background:var(--p);color:#fff;border-radius:10px;padding:12px;margin-top:10px}.b:first-child{margin-top:0}
+h2{font-size:13px;margin:0 0 8px}a{color:inherit}.card a:not(.b){color:var(--m)}a:focus-visible{outline:2px solid var(--m);outline-offset:2px}
+</style></head><body><main><header class="card">${okUrl(S.logo) ? `<img src="${esc(S.logo)}" alt="" width="84" height="84">` : ""}<h1>${esc(S.name)}</h1>${S.tag ? `<p>${esc(S.tag)}</p>` : ""}</header>${ls.length ? `<nav class="card">${ls.map((x) => `<a class="b" href="${esc(x.u)}" rel="noopener">${esc(x.l)}</a>`).join("")}</nav>` : ""}${hs.length ? `<section class="card"><h2>Hours</h2><p>${hs.map(esc).join("<br>")}</p></section>` : ""}${info ? `<section class="card"><h2>Find us</h2><p>${info}</p></section>` : ""}</main></body></html>`;
+      }
+
+      /* ---- GitHub + worker ---- */
+      async function gh(path, opt = {}) {
+        const r = await fetch("https://api.github.com" + path, {
+          ...opt,
+          headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: "Bearer " + T,
+            ...(opt.headers || {}),
+          },
+        });
+        return {
+          ok: r.ok,
+          status: r.status,
+          j: await r.json().catch(() => ({})),
+        };
+      }
+      const wk = (p, b) =>
+        fetch(CFG.WORKER + p, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(b),
+        }).then((r) => r.json());
+      const b64 = (s) => btoa(unescape(encodeURIComponent(s))),
+        unb64 = (s) => decodeURIComponent(escape(atob(s.replace(/\n/g, ""))));
+      const pageUrl = () => `https://${U}.github.io/${CFG.REPO}/`;
+      async function put(path, content) {
+        const base = `/repos/${U}/${CFG.REPO}/contents/${path}`,
+          ex = await gh(base);
+        const r = await gh(base, {
+          method: "PUT",
+          body: JSON.stringify({
+            message: "InfoSnap update",
+            content: b64(content),
+            ...(ex.ok ? { sha: ex.j.sha } : {}),
+          }),
+        });
+        if (!r.ok) throw Error("Upload failed: " + (r.j.message || r.status));
+      }
+      async function publish() {
+        busy = "Publishing…";
+        msg = "";
+        draw();
+        try {
+          if (!S.short) {
+            const s = await wk("/shorten", { url: pageUrl() });
+            if (!s.shorturl)
+              throw Error(
+                "Short link failed: " + (s.errormessage || "try again"),
+              );
+            S.short = s.shorturl;
+          }
+          const c = await gh("/user/repos", {
+            method: "POST",
+            body: JSON.stringify({
+              name: CFG.REPO,
+              description: "My InfoSnap business card",
+              auto_init: true,
+            }),
+          });
+          if (!c.ok && c.status !== 422)
+            throw Error("Could not create repo: " + (c.j.message || c.status));
+          await put("index.html", build());
+          await put("infosnap.json", JSON.stringify(S));
+          const p = await gh(`/repos/${U}/${CFG.REPO}/pages`, {
+            method: "POST",
+            body: JSON.stringify({ source: { branch: "main", path: "/" } }),
+          });
+          if (!p.ok && p.status !== 409)
+            throw Error(
+              "Could not turn on Pages: " + (p.j.message || p.status),
+            );
+          busy = "";
+          view = "done";
+        } catch (e) {
+          busy = "";
+          msg = e.message;
+        }
+        draw();
+      }
+      function logout() {
+        localStorage.removeItem("is_tok");
+        T = null;
+        view = "login";
+        draw();
+      }
+
+      /* ---- views ---- */
+      const pct = () =>
+        ({
+          login: 0,
+          wizard: (step + 1) / (ST.length + 2),
+          pub: (ST.length + 1) / (ST.length + 2),
+          done: 1,
+          edit: 1,
+        })[view] * 100;
+      function head(back) {
+        return `<div class="top">${back ? '<button class="icon ghost" onclick="back()" aria-label="Back">←</button>' : ""}<div class="bar"><i style="width:${pct()}%"></i></div></div>`;
+      }
+      function draw() {
+        const A = $("#app"),
+          er = msg ? `<div class="err" role="alert">${esc(msg)}</div>` : "";
+        if (view === "load")
+          A.innerHTML = `<div class="main c"><div class="big" style="margin-top:30vh">⏳</div></div>`;
+        else if (view === "login")
+          A.innerHTML = `<div class="main c"><div class="big" style="margin-top:14vh">⚡</div><h1>InfoSnap</h1><p class="s">Your business card page, live in about two minutes. Free, and you own it.</p>${er}</div><div class="foot"><button class="p" onclick="login()">Continue with GitHub</button><p class="s c" style="font-size:13px">We create one public repo on your account to host your page.</p></div>`;
+        else if (view === "wizard") {
+          const s = ST[step];
+          A.innerHTML =
+            head(1) +
+            `<div class="main"><span class="badge ${s.req ? "r" : ""}">${s.req ? "Required" : "Optional"}</span><h1>${s.t}</h1>${s.s ? `<p class="s">${s.s}</p>` : ""}${s.h()}${er}</div><div class="foot"><button class="p" onclick="next()">Continue</button>${s.req ? "" : '<button class="ghost" onclick="skip()">Skip for now</button>'}</div>`;
+        } else if (view === "pub")
+          A.innerHTML =
+            head(1) +
+            `<div class="main"><div class="big">🚀</div><h1 class="c">Ready to go live?</h1><p class="s c">This publishes <b>${esc(S.name)}</b> to your GitHub. You can change anything afterwards.</p><div class="card"><b>${esc(S.name)}</b><br><span class="s">${S.links.filter((x) => x.l && x.u).length} button(s)${S.tag ? " · tagline" : ""}${S.phone || S.addr ? " · contact" : ""}</span></div>${er}</div><div class="foot"><button class="p" ${busy ? "disabled" : ""} onclick="publish()">${busy || "Publish my page"}</button></div>`;
+        else if (view === "done") {
+          A.innerHTML =
+            head(0) +
+            `<div class="main c"><div class="big">🎉</div><h1>You're live!</h1><p class="s">GitHub can take a minute or two to show a brand-new page.</p><div class="card"><a href="${S.short}" target="_blank" rel="noopener" style="font-weight:800;word-break:break-all">${esc(S.short)}</a><div id="qr"></div></div></div><div class="foot"><button class="p" onclick="share()">Share my card</button><button onclick="copy()">Copy link</button><button onclick="dlqr()">Download QR code</button><button class="ghost" onclick="view='edit';draw()">Skip sharing, customize my page</button></div>`;
+          const q = qrcode(0, "M");
+          q.addData(S.short);
+          q.make();
+          $("#qr").innerHTML = q.createSvgTag({
+            cellSize: 6,
+            margin: 2,
+            scalable: true,
+          });
+        } else if (view === "edit")
+          A.innerHTML =
+            head(0) +
+            `<div class="main"><h1>Your page</h1><p class="s"><a href="${S.short || pageUrl()}" target="_blank" rel="noopener">${esc(S.short || pageUrl())}</a></p>
+ <p class="sec">Basics</p>${fld("a", "Business name", S.name, "")}${fld("b", "Tagline", S.tag, "")}
+ <p class="sec">Buttons</p>${rows(5)}
+ <p class="sec">Look</p>${fld("c", "Logo link", S.logo, "https://…/logo.png", "url")}<label for="d">Button color</label><input id="d" type="color" value="${esc(S.color)}" style="height:48px;padding:4px">
+ <p class="sec">Details</p><label for="e">Opening hours, one per line</label><textarea id="e">${esc(S.hours)}</textarea>${fld("f", "Phone", S.phone, "", "tel")}${fld("g", "Address", S.addr, "")}${er}</div>
+ <div class="foot"><button class="p" ${busy ? "disabled" : ""} onclick="save()">${busy || "Save changes"}</button><button onclick="view='done';draw()">Share my card</button><button class="ghost" onclick="logout()">Log out</button></div>`;
+      }
+      function next() {
+        const s = ST[step];
+        if (s.ok && !s.ok()) {
+          msg = "This one is needed to continue.";
+          return draw();
+        }
+        s.save();
+        msg = "";
+        step++;
+        if (step >= ST.length) view = "pub";
+        draw();
+        scrollTo(0, 0);
+      }
+      function skip() {
+        msg = "";
+        step++;
+        if (step >= ST.length) view = "pub";
+        draw();
+      }
+      function back() {
+        msg = "";
+        if (view === "pub") {
+          view = "wizard";
+          step = ST.length - 1;
+        } else if (step > 0) step--;
+        draw();
+      }
+      function save() {
+        S.name = v("a") || S.name;
+        S.tag = v("b");
+        readLinks(5);
+        S.logo = fixUrl(v("c"));
+        S.color = $("#d").value;
+        S.hours = $("#e").value;
+        S.phone = v("f");
+        S.addr = v("g");
+        publish().then(() => {
+          if (!msg) {
+            view = "edit";
+            msg = "";
+            draw();
+            alert("Saved. Changes show up in about a minute.");
+          }
+        });
+      }
+      async function share() {
+        try {
+          await navigator.share({ title: S.name, text: S.name, url: S.short });
+        } catch (e) {
+          if (e.name !== "AbortError") copy();
+        }
+      }
+      async function copy() {
+        try {
+          await navigator.clipboard.writeText(S.short);
+          alert("Link copied");
+        } catch (e) {
+          prompt("Copy this link", S.short);
+        }
+      }
+      function dlqr() {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(
+          new Blob([$("#qr").innerHTML], { type: "image/svg+xml" }),
+        );
+        a.download = "infosnap-qr.svg";
+        a.click();
+      }
+      function login() {
+        const st = crypto.randomUUID();
+        sessionStorage.setItem("is_st", st);
+        location.href = `https://github.com/login/oauth/authorize?client_id=${CFG.CLIENT_ID}&scope=public_repo&state=${st}`;
+      }
+
+      async function init() {
+        draw();
+        const q = new URLSearchParams(location.search);
+        try {
+          if (q.get("code")) {
+            const ok = q.get("state") === sessionStorage.getItem("is_st");
+            history.replaceState(null, "", location.pathname);
+            if (!ok)
+              throw Error("Login could not be verified. Please try again.");
+            const r = await wk("/token", { code: q.get("code") });
+            if (!r.access_token)
+              throw Error("GitHub login failed. Please try again.");
+            T = r.access_token;
+            localStorage.setItem("is_tok", T);
+          }
+          if (!T) {
+            view = "login";
+            return draw();
+          }
+          const me = await gh("/user");
+          if (!me.ok) {
+            localStorage.removeItem("is_tok");
+            T = null;
+            view = "login";
+            return draw();
+          }
+          U = me.j.login;
+          const ex = await gh(`/repos/${U}/${CFG.REPO}/contents/infosnap.json`);
+          if (ex.ok) {
+            S = { ...S, ...JSON.parse(unb64(ex.j.content)) };
+            view = "edit";
+          } else view = "wizard";
+        } catch (e) {
+          msg = e.message;
+          view = "login";
+        }
+        draw();
+      }
+      init();
+    </script>
+  </body>
+</html>
